@@ -14,9 +14,18 @@ dependencies = [
     "GitPython>=3.1",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
 [project.scripts]
 crystal-ball = "crystal_ball.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["crystal_ball*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
