@@ -65,6 +65,62 @@ class TestCliScan:
             path2.unlink()
 
 
+class TestCliToneFlag:
+    """Tests for the --tone / -t flag."""
+
+    def test_scan_help_shows_tone_option(self):
+        result = runner.invoke(app, ["scan", "--help"])
+        assert result.exit_code == 0
+        assert "--tone" in result.output
+
+    def test_default_tone_is_oracle(self):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"eval('1')\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", str(path)])
+            assert result.exit_code == 0
+        finally:
+            path.unlink()
+
+    @pytest.mark.parametrize("tone", ["oracle", "horror", "dry", "professional"])
+    def test_all_tones_run_without_error(self, tone):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"eval('1')\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", "--tone", tone, str(path)])
+            assert result.exit_code == 0
+            assert "eval_exec_usage" in result.output
+        finally:
+            path.unlink()
+
+    def test_short_flag(self):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"eval('1')\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", "-t", "dry", str(path)])
+            assert result.exit_code == 0
+        finally:
+            path.unlink()
+
+    def test_invalid_tone_fails(self):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"eval('1')\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", "--tone", "pirate", str(path)])
+            assert result.exit_code == 1
+            assert "unknown tone" in result.output
+        finally:
+            path.unlink()
+
+
 class TestCliVersion:
     """Tests for the version command."""
 
@@ -107,4 +163,3 @@ class TestCliModuleExecution:
             assert result.returncode == 0
         finally:
             path.unlink()
-
