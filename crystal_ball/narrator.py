@@ -6,10 +6,10 @@ from typing import Literal
 
 from crystal_ball.detector._utils import Finding
 
-ToneMode = Literal["oracle", "horror", "dry", "professional"]
+ToneMode = Literal["oracle", "dramatic", "minimalist", "professional"]
 
 DEFAULT_TONE: ToneMode = "oracle"
-ALL_TONES: tuple[ToneMode, ...] = ("oracle", "horror", "dry", "professional")
+ALL_TONES: tuple[ToneMode, ...] = ("oracle", "dramatic", "minimalist", "professional")
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The eval becomes the front door \u2014 no lock, no bouncer, just open execution.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "SOMETHING UNINVITED WILL EXECUTE",
                 "THE CALL IS COMING FROM INSIDE THE EVAL",
@@ -54,7 +54,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The payload arrives disguised as user input. By morning, it has spawned a reverse shell.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("Arbitrary code execution via eval/exec",),
             risks=("Untrusted input passed to eval/exec on line {line} allows arbitrary code execution.",),
         ),
@@ -74,7 +74,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The Crystal Ball sees DROP TABLE in your future \u2014 the query string is the open gate.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "YOUR DATABASE IS AN OPEN BOOK",
                 "THEY ARE READING YOUR DATA RIGHT NOW",
@@ -84,7 +84,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "One malformed input. One missing parameterization. The whole database, exfiltrated overnight.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("SQL injection via string formatting",),
             risks=("String formatting in SQL query on line {line} allows injection of arbitrary SQL.",),
         ),
@@ -104,7 +104,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The subprocess call trusts the shell blindly \u2014 command injection is one semicolon away.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "THE SHELL DOES NOT DISCRIMINATE",
                 "SOMEONE ELSE IS TYPING COMMANDS",
@@ -114,7 +114,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "shell=True on line {line} \u2014 every user input becomes root's next command.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("Command injection via shell=True",),
             risks=("subprocess call with shell=True on line {line} permits command injection.",),
         ),
@@ -134,7 +134,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The Crystal Ball sees a poisoned config file. One load() call, and the attacker's code runs.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "THE CONFIG FILE IS ALIVE",
                 "THE DESERIALIZATION NIGHTMARE BEGINS",
@@ -144,7 +144,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The config looks normal. Inside, a Python object waits to execute.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("Unsafe YAML deserialization",),
             risks=("yaml.load() without Loader on line {line} allows arbitrary code execution via crafted YAML.",),
         ),
@@ -164,7 +164,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The secret sits in plain text. One git push, and it lives in every clone forever.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "YOUR SECRETS ARE NOT SECRET",
                 "THE API KEY IS CALLING FROM INSIDE THE REPO",
@@ -174,7 +174,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "Bots scan every public push. Your hardcoded key will be found in under 30 seconds.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("Hardcoded credential detected",),
             risks=("Potential secret on line {line} should be moved to environment variables.",),
         ),
@@ -194,7 +194,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The Crystal Ball sees a thread pool drained dry \u2014 all workers stuck waiting on a dead endpoint.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "THE REQUEST THAT NEVER CAME BACK",
                 "HUNG THREADS PILE UP IN THE DARKNESS",
@@ -204,7 +204,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The remote endpoint dies. Your service follows, one hung connection at a time.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("HTTP request without timeout",),
             risks=("requests call on line {line} has no timeout and may hang indefinitely.",),
         ),
@@ -224,7 +224,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "Errors vanish silently into the bare except. Debugging becomes archaeology.",
             ),
         ),
-        "horror": _CheckTemplate(
+        "dramatic": _CheckTemplate(
             headlines=(
                 "ERRORS GO IN. NOTHING COMES OUT.",
                 "THE SILENT SWALLOWER LURKS ON LINE {line}",
@@ -234,7 +234,7 @@ _TEMPLATES: dict[str, dict[ToneMode, _CheckTemplate]] = {
                 "The bare except devours every traceback. When things go wrong, you will never know why.",
             ),
         ),
-        "dry": _CheckTemplate(
+        "minimalist": _CheckTemplate(
             headlines=("Bare except clause",),
             risks=("Bare except on line {line} catches all exceptions including KeyboardInterrupt.",),
         ),
@@ -254,11 +254,11 @@ _DEFAULT_TEMPLATES: dict[ToneMode, _CheckTemplate] = {
         headlines=("The Crystal Ball detects a disturbance on line {line}",),
         risks=("{message}",),
     ),
-    "horror": _CheckTemplate(
+    "dramatic": _CheckTemplate(
         headlines=("SOMETHING IS WRONG ON LINE {line}",),
         risks=("{message}",),
     ),
-    "dry": _CheckTemplate(
+    "minimalist": _CheckTemplate(
         headlines=("Issue detected: {check_id}",),
         risks=("{message}",),
     ),
@@ -292,7 +292,7 @@ def format_narrative(
     finding:
         Structured finding from a detector.
     tone:
-        One of ``"oracle"``, ``"horror"``, ``"dry"``, ``"professional"``.
+        One of ``"oracle"``, ``"dramatic"``, ``"minimalist"``, ``"professional"``.
     seed:
         Explicit variant selector.  When *None* (default), a stable hash of
         the finding is used so different findings get different variants but

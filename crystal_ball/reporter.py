@@ -21,18 +21,20 @@ def print_findings(
         narrative = format_narrative(finding, tone=tone)
 
         severity_style = {
-            "high": "bold red",
-            "medium": "bold yellow",
-            "low": "dim",
-        }.get(finding.severity, "")
+            "critical": "bold red",
+            "high": "red",
+            "medium": "yellow",
+            "low": "blue",
+        }.get(finding.severity.lower(), "")
 
         table = Table(show_header=False, box=None, padding=(0, 1))
         table.add_column(style="bold cyan")
         table.add_column()
 
-        table.add_row("Incident Type:", f"[{severity_style}]{finding.check_id}[/]")
-        table.add_row("Prediction:", finding.message)
-        table.add_row("Estimated Damage:", narrative.risk_summary)
+        sev_label = finding.severity.upper()
+        table.add_row("Severity:", f"[{severity_style}]{sev_label}[/]")
+        table.add_row("Check:", f"[{severity_style}]{finding.check_id}[/]")
+        table.add_row("Risk:", narrative.risk_summary)
         table.add_row("Line:", str(finding.line))
         table.add_row("Snippet:", finding.snippet)
         table.add_row("Suggested Fix:", finding.suggested_fix)

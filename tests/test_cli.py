@@ -25,15 +25,26 @@ class TestCliScan:
         finally:
             path.unlink()
 
-    def test_scan_file_with_findings(self):
+    def test_scan_file_with_findings_exits_1_for_high(self):
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
             f.write(b"eval('1')\n")
             f.flush()
             path = Path(f.name)
         try:
             result = runner.invoke(app, ["scan", str(path)])
+            assert result.exit_code == 1
+        finally:
+            path.unlink()
+
+    def test_scan_file_medium_only_exits_0(self):
+        code = b"try:\n    x = 1\nexcept:\n    pass\n"
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(code)
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", str(path)])
             assert result.exit_code == 0
-            assert "eval_exec_usage" in result.output or "FLASHFORWARD" in result.output
         finally:
             path.unlink()
 
@@ -75,7 +86,7 @@ class TestCliToneFlag:
 
     def test_default_tone_is_oracle(self):
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
-            f.write(b"eval('1')\n")
+            f.write(b"x = 1\n")
             f.flush()
             path = Path(f.name)
         try:
@@ -84,33 +95,32 @@ class TestCliToneFlag:
         finally:
             path.unlink()
 
-    @pytest.mark.parametrize("tone", ["oracle", "horror", "dry", "professional"])
+    @pytest.mark.parametrize("tone", ["oracle", "dramatic", "minimalist", "professional"])
     def test_all_tones_run_without_error(self, tone):
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
-            f.write(b"eval('1')\n")
+            f.write(b"x = 1\n")
             f.flush()
             path = Path(f.name)
         try:
             result = runner.invoke(app, ["scan", "--tone", tone, str(path)])
             assert result.exit_code == 0
-            assert "eval_exec_usage" in result.output
         finally:
             path.unlink()
 
     def test_short_flag(self):
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
-            f.write(b"eval('1')\n")
+            f.write(b"x = 1\n")
             f.flush()
             path = Path(f.name)
         try:
-            result = runner.invoke(app, ["scan", "-t", "dry", str(path)])
+            result = runner.invoke(app, ["scan", "-t", "minimalist", str(path)])
             assert result.exit_code == 0
         finally:
             path.unlink()
 
     def test_invalid_tone_fails(self):
         with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
-            f.write(b"eval('1')\n")
+            f.write(b"x = 1\n")
             f.flush()
             path = Path(f.name)
         try:
@@ -119,6 +129,47 @@ class TestCliToneFlag:
             assert "unknown tone" in result.output
         finally:
             path.unlink()
+
+
+class TestCliGithubFlag:
+    """Tests for the --github flag."""
+
+    def test_github_flag_emits_annotations(self):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"eval('1')\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", "--github", str(path)])
+            assert "::error" in result.output or "::warning" in result.output
+        finally:
+            path.unlink()
+
+    def test_github_flag_clean_file(self):
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+            f.write(b"x = 1\n")
+            f.flush()
+            path = Path(f.name)
+        try:
+            result = runner.invoke(app, ["scan", "--github", str(path)])
+            assert result.exit_code == 0
+            assert "::" not in result.output
+        finally:
+            path.unlink()
+
+
+class TestCliInstall:
+    """Tests for the install command."""
+
+    def test_install_outside_repo_fails(self, monkeypatch):
+        monkeypatch.setattr("crystal_ball.cli.find_git_root", lambda: None)
+        monkeypatch.setattr(
+            "crystal_ball.cli.install_hook",
+            lambda: (_ for _ in ()).throw(RuntimeError("Not inside a Git repository")),
+        )
+        result = runner.invoke(app, ["install"])
+        assert result.exit_code == 1
+        assert "Not inside a Git repository" in result.output
 
 
 class TestCliVersion:
@@ -135,7 +186,6 @@ class TestCliHelp:
 
     def test_no_args_shows_help(self):
         result = runner.invoke(app, [])
-        # Typer exits 2 for usage errors when no args given (no_args_is_help=True)
         assert result.exit_code in (0, 2)
         assert "Usage" in result.output
 
@@ -143,6 +193,14 @@ class TestCliHelp:
         result = runner.invoke(app, ["scan", "--help"])
         assert result.exit_code == 0
         assert "scan" in result.output
+
+    def test_install_appears_in_help(self):
+        result = runner.invoke(app, ["--help"])
+        assert "install" in result.output
+
+    def test_scan_staged_appears_in_help(self):
+        result = runner.invoke(app, ["--help"])
+        assert "scan-staged" in result.output
 
 
 class TestCliModuleExecution:

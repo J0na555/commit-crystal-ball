@@ -50,8 +50,6 @@ class TestFormatNarrative:
     def test_different_lines_may_pick_different_variants(self):
         a = format_narrative(_make_finding(line=1))
         b = format_narrative(_make_finding(line=2))
-        # Different stable hashes — at least one field should differ
-        # (unless there's only one variant per template, which is fine)
         assert isinstance(a, Narrative)
         assert isinstance(b, Narrative)
 
@@ -96,8 +94,6 @@ class TestToneModes:
     @pytest.mark.parametrize("tone", ALL_TONES)
     def test_tone_changes_output(self, tone):
         result = format_narrative(_make_finding(), tone=tone, seed=0)
-        # Each tone has its own templates, so output should differ from at
-        # least one other tone (we just verify it runs and isn't empty).
         assert isinstance(result.headline, str)
 
     def test_oracle_is_default(self):
@@ -108,7 +104,7 @@ class TestToneModes:
 
 
 class TestFallback:
-    """Unknown check_ids use the professional-style fallback."""
+    """Unknown check_ids use the fallback template."""
 
     def test_unknown_check_id_uses_fallback(self):
         f = _make_finding(check_id="totally_unknown_check")
@@ -125,7 +121,7 @@ class TestFallback:
 
     def test_fallback_includes_message(self):
         f = _make_finding(check_id="unknown", message="Something bad happened")
-        result = format_narrative(f, tone="dry", seed=0)
+        result = format_narrative(f, tone="minimalist", seed=0)
         assert "Something bad happened" in result.risk_summary
 
 

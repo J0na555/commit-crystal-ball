@@ -83,7 +83,7 @@ class TestPrintFindings:
             m.setattr("crystal_ball.reporter.console", real_console)
             print_findings(findings, "test.py", tone="oracle")
         output = buf.getvalue()
-        assert "Estimated Damage" in output
+        assert "Risk" in output
         assert "eval_exec_usage" in output
 
     @pytest.mark.parametrize("tone", ALL_TONES)
