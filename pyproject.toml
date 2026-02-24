@@ -24,8 +24,8 @@ dev = [
 ]
 
 [project.scripts]
-crystal = "crystal_ball.cli:app"
-crystal-ball = "crystal_ball.cli:app"
+crystal = "crystal_ball.cli:main"
+crystal-ball = "crystal_ball.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

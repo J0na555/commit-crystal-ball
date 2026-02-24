@@ -5,6 +5,7 @@ from pathlib import Path
 
 import typer
 
+from crystal_ball import __version__
 from crystal_ball.detector import has_blocking, scan as scan_detector, scan_diff
 from crystal_ball.formatter import format_findings
 from crystal_ball.git import (
@@ -150,8 +151,13 @@ def install() -> None:
 
 @app.command()
 def version():
-    typer.echo("0.1.0")
+    typer.echo(__version__)
+
+
+def main() -> None:
+    """CLI entry point."""
+    app()
 
 
 if __name__ == "__main__":
-    typer.run(app)
+    main()

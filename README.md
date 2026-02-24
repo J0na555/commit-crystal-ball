@@ -46,8 +46,13 @@ Results are rendered through deterministic formatter profiles (`oracle`, `dramat
 ## Installation
 
 ```bash
-# From your Python environment
-pip install crystal-ball
+# Install from GitHub
+pip install git+https://github.com/y0na55/commit-crystall-ball.git
+```
+
+```bash
+# Verify installation
+crystal version
 ```
 
 ```bash
