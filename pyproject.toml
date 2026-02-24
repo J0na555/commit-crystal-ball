@@ -3,15 +3,19 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "commit-crystal-ball"
+name = "crystal-ball"
 version = "0.1.0"
 description = "Predict future incidents from your code"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
 dependencies = [
     "typer>=0.24",
     "rich>=14.0",
     "GitPython>=3.1",
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
 ]
 
 [project.optional-dependencies]
